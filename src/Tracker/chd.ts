@@ -63,15 +63,24 @@ export class Chd implements Tracker {
         });
     }
     private getRawHtml = async () => {
-        if (!fs.existsSync(templatePath)) {
-            const res = await fetch("https://chdbits.co/torrents.php", chdbitsHeaders);
-            if (res.ok) {
-                const rawHtml = await res.text();
-                fs.writeFileSync(templatePath, rawHtml);
-            } else {
-                throw new Error('res is not ok');
-            }
+
+        const res = await fetch("https://chdbits.co/torrents.php", chdbitsHeaders);
+        if (res.ok) {
+            const rawHtml = await res.text();
+            return rawHtml;
+        } else {
+            throw new Error('res is not ok');
         }
-        return fs.readFileSync(templatePath).toString();
+
+        // if (!fs.existsSync(templatePath)) {
+        //     const res = await fetch("https://chdbits.co/torrents.php", chdbitsHeaders);
+        //     if (res.ok) {
+        //         const rawHtml = await res.text();
+        //         fs.writeFileSync(templatePath, rawHtml);
+        //     } else {
+        //         throw new Error('res is not ok');
+        //     }
+        // }
+        // return fs.readFileSync(templatePath).toString();
     }
 }

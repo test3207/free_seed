@@ -1,3 +1,4 @@
+import { Client } from './interface';
 export class QBClient implements Client {
     download = async (seedLink: string) => {
         fetch("http://localhost:8080/api/v2/torrents/add", {
