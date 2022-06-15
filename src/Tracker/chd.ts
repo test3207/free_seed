@@ -1,15 +1,13 @@
 import { config } from '../Config';
 import { parse } from 'node-html-parser';
 import { SeedInfo, Tracker } from './interface';
-import fs from 'fs';
-import path from 'path';
-const chdbitsHeaders = config.trackerHeaders;
-const templatePath = path.resolve(__dirname, 'template.html');
-
+const chdbitsHeaders = config.trackerRequestOption.chd;
 
 export class Chd implements Tracker {
     public freeList = async () => {
-        return await this.parseHtml();
+        return (await this.parseHtml()).filter((i) => {
+            return i.downloaded === 0 && i.expire > 7200 && i.size < 100;
+        });
     }
     private parseHtml:() => Promise<SeedInfo[]> = async () => {
         const root = parse(await this.getRawHtml());
@@ -34,7 +32,7 @@ export class Chd implements Tracker {
                 return i.nodeType === 1 && (i as any).rawTagName === 'a';
             })[0] as HTMLElement;
             const downloadString = a && a.getAttribute ? a.getAttribute('href') : ''; // 'download.php?id=189194'
-            const seedLink = `https://chdbits.co/${downloadString}&passkey=${config.passkey}`;
+            const seedLink = `https://chdbits.co/${downloadString}&passkey=${config.trackerPasskey.chd}`;
 
             const sizeString = sizeTd.textContent!;
             const size = sizeString.includes('TB') ?
@@ -58,12 +56,9 @@ export class Chd implements Tracker {
                 seedLink,
             };
         });
-        return seedList.filter((i) => {
-            return i.downloaded === 0 && i.expire > 7200 && i.size < 100;
-        });
+        return seedList;
     }
     private getRawHtml = async () => {
-
         const res = await fetch("https://chdbits.co/torrents.php", chdbitsHeaders);
         if (res.ok) {
             const rawHtml = await res.text();
@@ -71,16 +66,5 @@ export class Chd implements Tracker {
         } else {
             throw new Error('res is not ok');
         }
-
-        // if (!fs.existsSync(templatePath)) {
-        //     const res = await fetch("https://chdbits.co/torrents.php", chdbitsHeaders);
-        //     if (res.ok) {
-        //         const rawHtml = await res.text();
-        //         fs.writeFileSync(templatePath, rawHtml);
-        //     } else {
-        //         throw new Error('res is not ok');
-        //     }
-        // }
-        // return fs.readFileSync(templatePath).toString();
     }
 }

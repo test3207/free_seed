@@ -2,7 +2,7 @@ import cron from 'node-cron';
 import { Chd } from './src/Tracker';
 import { QBClient } from './src/Client';
 
-const schedule = '0,30 * * * *';
+const schedule = '0,30 8-22 * * *';
 
 const chd = new Chd();
 const qb = new QBClient();
@@ -16,7 +16,9 @@ const run = async () => {
     console.table(list);
 }
 
-cron.schedule(schedule, run);
+cron.schedule(schedule, run, {
+    timezone: 'Asia/Shanghai',
+});
 run();
 
 console.log(`app started`);

@@ -20,6 +20,7 @@
   },
   "scripts": {
     "dev": "ts-node app.ts",
+    "tlf": "ts-node seeder.ts",
     "start": "pm2 start --name free_seed"
   },
   "author": "test3207",
